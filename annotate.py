@@ -1,39 +1,58 @@
-from utils.preprocessing import create_annotations, annotate_raw
+from utils.preprocessing import create_annotations, annotate_raw, create_events  # import our functions for annotations from the folder utils, file preprocessing
 import os
 import mne
+import logging
 
-
-if __name__ == '__main__':
-    root = '.\\'
-    subjects_dir = os.path.join(root, 'data', 'subjects')
-    for subject_name in os.listdir(subjects_dir):
-        subject_dir = os.path.join(subjects_dir, subject_name)
-        raw_dir = os.path.join(subject_dir, 'raw')
-        for raw_name in os.listdir(raw_dir):
-            if 'annotated' in raw_name:
+if __name__ == '__main__': # if we import fuctions from another file, we dont read them straigh away, 
+                            # but when we initiate them in this script
+    mne.set_log_level(logging.CRITICAL)
+    root = '.\\' # start from the folder with annotate.py
+    subjects_dir = os.path.join(root, 'data', 'subjects') # path to the subjects directory
+    for subject_name in os.listdir(subjects_dir): # for every subj in the directory
+        print(f'Subject name: {subject_name}')
+        print(f'Reading {subject_name} folder...', end='\t\t')
+        subject_dir = os.path.join(subjects_dir, subject_name) # path to each subj one by one
+        print('OK')
+        raw_dir = os.path.join(subject_dir, 'raw') #path to raw file in subj directory
+        print(f'Reading {raw_dir} folder...', end='\t\t')
+        print('OK')
+        for raw_name in os.listdir(raw_dir): #for each of raw enc files
+            if 'annotated' in raw_name: #skip annotated files
                 continue
-            
-            encoding = raw_name[:9]
-            anno_name = encoding + '_tsss_mc_trans_BAD.txt'
+            print(f'Raw file: {raw_name}')
 
-            raw_path = os.path.join(raw_dir, raw_name)
-            anno_dir = os.path.join(subject_dir, 'annotations')
-            anno_path = os.path.join(anno_dir, anno_name)
+            encoding = raw_name[:9] # give name to anno file enc 1 or 2
+            anno_name = encoding + '_tsss_mc_trans_BAD.txt' # rest of the file name
+            events_name = encoding + '_tsss_mc_trans_all_events.txt' # rest of the file name
 
-            raw = mne.io.read_raw_fif(raw_path)
-            stim_chs = raw.copy().pick_types(meg=False, stim=True).info['ch_names']
-            # stim_chs = 'STI102'
-            events = mne.find_events(raw, stim_chs, min_duration=.01)
+            raw_path = os.path.join(raw_dir, raw_name) # go to each raw file
+            anno_path = os.path.join(subject_dir, 'annotations', anno_name) # path to each anno file
+            events_path = os.path.join(subject_dir, 'events', events_name)
+            print('Reading raw-file ...', end='\t\t')
+            raw = mne.io.read_raw_fif(raw_path) # read raw file
+            print('OK')
+            print(f'Reading events from {events_name}...', end='\t\t')
+            with open(events_path) as f:
+                lines = f.readlines()
+            print('OK')
 
-            if len(raw.annotations) != 0:
+            print('Creating events...', end='\t\t')
+            events, events_ids = create_events(lines) # ОПЯТЬ БЛИН
+            print('OK')
+
+            print('Creating annotations...', end='\t\t')
+            if len(raw.annotations) != 0: # if we dont have annotations, annotate raw file
                 raw = annotate_raw(raw, events)
-            else:
-                with open(anno_path) as f:
+            else:                         # if we have annotations, read file with annotations
+                with open(anno_path) as f: # to close file automatically after reading
                     lines = f.readlines()
 
-                annotations = create_annotations(lines)
-                raw.set_annotations(annotations)
-                raw = annotate_raw(raw, events)
+                annotations = create_annotations(lines) # create annotations from txt file
+                raw.set_annotations(annotations) # ???
+                raw = annotate_raw(raw, events) # add annotations to raw file
+            print('OK')
 
-            raw.save(raw_path[:-4] + '_annotated.fif', overwrite=True)
+            print('Saving annotations...', end='\t\t')
+            raw.save(raw_path[:-4] + '_annotated.fif', overwrite=True) # save with a name _annotated instead of _BAD
+            print(f'SUCCESSFULLY WRITTEN in {raw_path}')
 
