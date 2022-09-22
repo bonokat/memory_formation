@@ -51,12 +51,15 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             raw = mne.io.read_raw_fif(raw_path) # read raw file
             print('OK')
             print('{0:64s}'.format(f'Reading events from {events_name}...'), end='')
+            onset = raw._cropped_samp/1000
+            
             with open(events_path) as f:
                 lines = f.readlines()
             print('OK')
 
             print('{0:64s}'.format('Creating events...'), end='')
-            events, events_ids = create_events(lines) 
+            events, events_ids = create_events(lines, onset) 
+            events[:, 0] *= raw.info['sfreq']
             print('OK')
 
             print('{0:64s}'.format('Creating annotations...'), end='')
@@ -66,7 +69,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
                 with open(anno_path) as f: # to close file automatically after reading
                     lines = f.readlines()
 
-                annotations = create_annotations(lines) # create annotations from txt file
+                annotations = create_annotations(lines, onset) # create annotations from txt file
                 raw.set_annotations(annotations) 
                 raw = annotate_raw(raw, events) # add annotations to raw file
             print('OK')

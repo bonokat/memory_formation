@@ -5,7 +5,7 @@ from typing import Optional
 import matplotlib.pyplot as plt
 
 
-def create_annotations(lines: list[str]) -> list[mne.Annotations]: # create annotaitons from a list of strings
+def create_annotations(lines: list[str], onset: Optional[float] = 0) -> list[mne.Annotations]: # create annotaitons from a list of strings
     processed_lines = list() # create an empty list
 
     for line in lines: # go line by line in txt
@@ -17,14 +17,12 @@ def create_annotations(lines: list[str]) -> list[mne.Annotations]: # create anno
     processed_lines = np.array(processed_lines) # convert new list to np.array
     
     return mne.Annotations(         # return new list in mne.Annotations format
-        processed_lines[:, 1],
-        processed_lines[:, 2],
+        processed_lines[:, 1].astype(float) - onset,
+        processed_lines[:, 2].astype(float),
         processed_lines[:, 0]
     )
 
-
 def annotate_raw(raw: mne.io.Raw, events: Optional[np.ndarray] = None) -> mne.io.Raw: # annotate raw files
-    events = events.astype(float)
     if events is not None: # if there are events, we add them to the raw file plot
         fig = raw.plot(events=events) 
     else:                  # if not, we plot raw file 
@@ -37,7 +35,7 @@ def annotate_raw(raw: mne.io.Raw, events: Optional[np.ndarray] = None) -> mne.io
     return raw  #return annotated raw file
 
 
-def create_events(event_lines: list[str]) -> list[tuple[np.array, dict]]:
+def create_events(event_lines: list[str],  onset: Optional[float] = 0) -> list[tuple[np.array, dict]]:
     
     event_names = list() # empty list for event names
     line_contents = list() # empry list to put lines
@@ -56,8 +54,8 @@ def create_events(event_lines: list[str]) -> list[tuple[np.array, dict]]:
     events = list()
 
     for line_content in line_contents:
-        events.append([line_content[1], 0, events_ids[line_content[0]]]) # events format for mne: time, 0, name)
+        events.append([float(line_content[1]) - onset, 0, events_ids[line_content[0]]]) # events format for mne: time, 0, name)
 
-    events = np.array(events) #convert list to np.array
+    events = np.array(events).astype(float) #convert list to np.array
 
     return events, events_ids
