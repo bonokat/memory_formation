@@ -53,10 +53,12 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             anno_raw = mne.io.read_raw_fif(anno_raw_path, preload=True) # read raw file
             
 
-            high_filt_raw = anno_raw.copy().filter(l_freq=.5, h_freq=None) # high-pass filter data
+            filt_raw = anno_raw.copy()\
+                .filter(l_freq=.5, h_freq=90)\
+                .notch_filter(50) # filter data
 
             ica = ICA(n_components=20)
-            ica.fit(high_filt_raw) #ica decomposition on raw filtered data
+            ica.fit(filt_raw) #ica decomposition on raw filtered data
 
             ica.exclude = []
             # find which ICs match the ECG pattern
@@ -71,11 +73,11 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             ica.exclude = eog_indices + ecg_indices
 
             #create a copy of raw file and apply ica to it
-            reconst_raw = high_filt_raw.copy()
+            reconst_raw = filt_raw.copy()
             ica.apply(reconst_raw)
 
             if visualize:
-                high_filt_raw.plot()
+                filt_raw.plot()
                 plt.show()
                 reconst_raw.plot()
                 plt.show()

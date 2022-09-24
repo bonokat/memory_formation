@@ -35,6 +35,19 @@ def annotate_raw(raw: mne.io.Raw, events: Optional[np.ndarray] = None) -> mne.io
     return raw  #return annotated raw file
 
 
+def encode_event(event_name: str) -> int:
+    encoder = {
+        'enc': '1',
+        'neg': '1',
+        'neu': '0',
+        'hits': '1',
+        'miss': '0',
+        'sure': '1',
+        'notsure': '0'
+    }
+    return int(''.join([encoder.get(event_group, '0') for event_group in event_name.split('/')]))
+
+
 def create_events(event_lines: list[str],  onset: Optional[float] = 0) -> list[tuple[np.array, dict]]:
     
     event_names = list() # empty list for event names
@@ -42,14 +55,15 @@ def create_events(event_lines: list[str],  onset: Optional[float] = 0) -> list[t
 
     for line in event_lines: 
         line_content = line.split(', ') # split lines into name of event, time, zero
+        line_content[0] = line_content[0].replace('_', '/')
         event_names.append(line_content[0]) # list the event names
         line_contents.append(line_content) # list all info about events
 
     unique_events = set(event_names) # sets contain only unique objects
     events_ids = dict() # empty dictionary to store info on events
 
-    for id, event in enumerate(unique_events): # assing numbers to unique event names
-        events_ids[event] = id # ????
+    for event in unique_events: # assing numbers to unique event names
+        events_ids[event] = encode_event(event)
 
     events = list()
 
@@ -59,3 +73,13 @@ def create_events(event_lines: list[str],  onset: Optional[float] = 0) -> list[t
     events = np.array(events).astype(float) #convert list to np.array
 
     return events, events_ids
+
+
+def read_events(raw: mne.io.Raw, path: str, onset: Optional[float] = 0) -> tuple[np.ndarray, dict[str, int]]:
+    with open(path) as f:
+        lines = f.readlines()
+    events, event_ids = create_events(lines, onset)
+    events[:, 0] *= raw.info['sfreq']
+
+    return events.astype(int), event_ids
+

@@ -58,7 +58,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             print('OK')
 
             print('{0:64s}'.format('Creating events...'), end='')
-            events, events_ids = create_events(lines, onset) 
+            events, events_ids = create_events(lines) 
             events[:, 0] *= raw.info['sfreq']
             print('OK')
 
