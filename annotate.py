@@ -76,5 +76,5 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
 
             print('Saving annotations...')
             raw.save(raw_path[:-4] + '_annotated.fif', overwrite=True) # save with a name _annotated instead of _BAD
-            print(f'SUCCESSFULLY WRITTEN in {raw_path}')
+            print(f'SUCCESSFULLY WRITTEN in {raw_dir}')
 

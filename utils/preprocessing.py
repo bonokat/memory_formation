@@ -78,6 +78,7 @@ def create_events(event_lines: list[str],  onset: Optional[float] = 0) -> list[t
 def read_events(raw: mne.io.Raw, path: str, onset: Optional[float] = 0) -> tuple[np.ndarray, dict[str, int]]:
     with open(path) as f:
         lines = f.readlines()
+
     events, event_ids = create_events(lines, onset)
     events[:, 0] *= raw.info['sfreq']
 

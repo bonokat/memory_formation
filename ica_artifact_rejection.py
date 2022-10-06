@@ -42,7 +42,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
         print('{0:64s}'.format(f'Reading {anno_raw_dir} folder...'), end='')
         print('OK')
         for anno_raw_name in os.listdir(anno_raw_dir): #for each of raw enc files
-            if not 'annotated' in anno_raw_name: #skip annotated files
+            if (not 'annotated' in anno_raw_name) or ('_filtered_reconstructed' in anno_raw_name): #skip non-annotated and reconstructed files
                 print(f'Annotated file for subject {subject_name} not found') 
                 continue
             print(f'Raw file: {anno_raw_name}')
