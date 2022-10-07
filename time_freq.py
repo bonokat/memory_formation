@@ -65,14 +65,13 @@ if __name__ == '__main__':
             cond_list = ['hits', 'miss']
             freqs = np.logspace(*np.log10([3, 90]), num=15)
             n_cycles = freqs / 2.  # different number of cycle per frequency
-            show = True if visualize else False #FIXME: fixed????
             bl = ... #FIXME: bl based on the bl in the epochs name
 
             for cond in cond_list:
 
                 fig_psd_epo = epochs[cond].plot_psd(
                     fmin=fmin, fmax=fmax, 
-                    spatial_colors=True, show=show
+                    spatial_colors=True, show=visualize
                     )
                 
                 fig_psd_epo.savefig(
@@ -101,7 +100,7 @@ if __name__ == '__main__':
                     fmin=fmin,
                     fmax=fmax,
                     yscale='log',
-                    show=show
+                    show=visualize
                 )
 
                 power_plot.savefig(

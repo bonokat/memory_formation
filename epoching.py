@@ -1,9 +1,5 @@
-import sys
 import os
 import argparse
-current_dir = os.path.dirname(os.path.abspath('./'))
-if not current_dir in sys.path:
-    sys.path.append(current_dir)
 from utils import check_paths
 
 import mne
@@ -13,9 +9,9 @@ import numpy as np
 from typing import *
 
 
-if __name__ == '__main__': # if we import fuctions from another file, we dont read them straigh away, 
+if __name__ == '__main__': # if we import fuctions from another file, we dont read them straigh away,
                             # but when we initiate them in this script
-    root = '.\\' 
+    root = '.\\'
 
     parser = argparse.ArgumentParser(description='Script to address subjects')
     parser.add_argument('-from', type=int, help='id of the first subject', default=1)
@@ -45,7 +41,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
         tmax,\
         bl,\
         sfreq = vars(parser.parse_args()).values()
-    bl = tuple(bl)
+    bl = tuple(bl) if bl is not None else tuple()
 
     if to is None:
         to = max(sub_inds)
@@ -67,7 +63,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
         evoked_pics_dir = os.path.join(pics_dir, 'evoked')
         # check if the folders exist. if not, create them
         check_paths(epochs_dir, evoked_dir, pics_dir, evoked_pics_dir)
-        
+
         raw_dir = os.path.join(subject_dir, 'raw')
         print('{0:64s}'.format(f'Reading {raw_dir} folder...'), end='')
         print('OK')
@@ -78,7 +74,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
                 continue
 
             print(f'Raw file: {raw_name}')
-            
+
             encoding = raw_name[:9]
             events_name = encoding + '_tsss_mc_trans_all_events.txt'
             events_path = os.path.join(subject_dir, 'events', events_name)
@@ -98,8 +94,8 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             events_selected = np.array(list(filter(
                 lambda row: row[2] in selected_event_ids,
                 events
-            ))) 
-            
+            )))
+
             epochs_list.append(mne.Epochs(
                 raw,
                 events_selected,
@@ -123,18 +119,19 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             fig.savefig(
                 os.path.join(
                     evoked_pics_dir,
-                    f'{evo_name}_bl_{bl[0]}_{bl[1]}.png'
+                    f'{evo_name}_bl_{"_".join(bl) if bl else "None"}.png'
                 ),
                 dpi=300
             )
+
             if visualize:
                 plt.show()
             plt.close()
-            
+
             evoked.save(
                 os.path.join(
                     evoked_dir,
-                    f'encoding_evoked_{evo_name}_bl_{bl[0]}_{bl[1]}.fif'
+                    f'encoding_evoked_{evo_name}_bl_{"_".join(bl) if bl else "None"}.fif'
                 ),
                 overwrite=True
             )
@@ -142,10 +139,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
         epochs.save(
             os.path.join(
                 epochs_dir,
-                f'encoding_epochs_bl_{bl[0]}_{bl[1]}.fif'
+                f'encoding_epochs_bl_{"_".join(bl) if bl else "None"}.fif'
             ),
             overwrite=True
         )
-
-
-
