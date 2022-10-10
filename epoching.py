@@ -111,7 +111,13 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             epochs = epochs.resample(sfreq)
 
         del epochs_list, raw
-        evokeds = epochs.load_data().copy().pick_types(meg='grad').average(by_event_type=True)
+        evokeds = epochs.load_data()\
+            .copy()\
+            .pick_types(meg='grad')\
+            .apply_baseline(
+                baseline=bl if bl else (None, 0)
+            )\
+            .average(by_event_type=True)
 
         for evoked in evokeds:
             evo_name = evoked.comment.replace("/", "_")
@@ -119,7 +125,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             fig.savefig(
                 os.path.join(
                     evoked_pics_dir,
-                    f'{evo_name}_bl_{"_".join(bl) if bl else "None"}.png'
+                    f'{evo_name}_bl_{"".join(str(bl)) if bl else "None"}.png'
                 ),
                 dpi=300
             )
@@ -131,7 +137,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
             evoked.save(
                 os.path.join(
                     evoked_dir,
-                    f'encoding_evoked_{evo_name}_bl_{"_".join(bl) if bl else "None"}.fif'
+                    f'enc_evoked_{evo_name}.fif'
                 ),
                 overwrite=True
             )
@@ -139,7 +145,7 @@ if __name__ == '__main__': # if we import fuctions from another file, we dont re
         epochs.save(
             os.path.join(
                 epochs_dir,
-                f'encoding_epochs_bl_{"_".join(bl) if bl else "None"}.fif'
+                'enc_epochs.fif'
             ),
             overwrite=True
         )
