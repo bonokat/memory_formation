@@ -97,7 +97,7 @@ if __name__ == '__main__':
                 elif m == 'multitaper':
                     print('Computing multitaper transform...')
                     power = tfr_multitaper(
-                        epochs['hits'], freqs=freqs, n_cycles=n_cycles, use_fft=True,
+                        epochs[cond], freqs=freqs, n_cycles=n_cycles, use_fft=True,
                         decim=3, n_jobs=5, return_itc=False, time_bandwidth=n_tapes + 1
                     )
                 else:
