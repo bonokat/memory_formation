@@ -13,9 +13,9 @@ def create_annotations(lines: list[str], onset: Optional[float] = 0) -> list[mne
         splitted_lines[1] = float(splitted_lines[1]) # convert onset into float
         splitted_lines[2] = float(splitted_lines[2]) # convert duration into float
         processed_lines.append(splitted_lines) # append new list with "BAD", float(onset), float(duration)
-    
+
     processed_lines = np.array(processed_lines) # convert new list to np.array
-    
+
     return mne.Annotations(         # return new list in mne.Annotations format
         processed_lines[:, 1].astype(float) - onset,
         processed_lines[:, 2].astype(float),
@@ -24,12 +24,12 @@ def create_annotations(lines: list[str], onset: Optional[float] = 0) -> list[mne
 
 def annotate_raw(raw: mne.io.Raw, events: Optional[np.ndarray] = None) -> mne.io.Raw: # annotate raw files
     if events is not None: # if there are events, we add them to the raw file plot
-        fig = raw.plot(events=events) 
-    else:                  # if not, we plot raw file 
+        fig = raw.plot(events=events)
+    else:                  # if not, we plot raw file
         fig = raw.plot()
     plt.show()
 
-    fig.canvas.key_press_event('a') # now we can add events manually: 1. don't close the small window; 
+    fig.canvas.key_press_event('a') # now we can add events manually: 1. don't close the small window;
                                     # 2. press 'a' to add annotations; 3. first close small window, then close plot
 
     return raw  #return annotated raw file
@@ -49,11 +49,11 @@ def encode_event(event_name: str) -> int:
 
 
 def create_events(event_lines: list[str],  onset: Optional[float] = 0) -> list[tuple[np.array, dict]]:
-    
+
     event_names = list() # empty list for event names
     line_contents = list() # empry list to put lines
 
-    for line in event_lines: 
+    for line in event_lines:
         line_content = line.split(', ') # split lines into name of event, time, zero
         line_content[0] = line_content[0].replace('_', '/')
         event_names.append(line_content[0]) # list the event names
