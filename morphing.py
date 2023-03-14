@@ -43,7 +43,7 @@ if __name__ == '__main__':
 
         # directories to work with
         subject_dir = os.path.join(subjects_dir, subject_name)
-         print(f'Subject name: {subject_name}')
+        print(f'Subject name: {subject_name}')
         print('{0:64s}'.format(f'Reading {subject_name} folder...'), end='')
         stc_dir = os.path.join(subject_dir, 'source_rec')
         stc_path = os.path.join(stc_dir, f'stc_{cond}_{fband}_{subject_name}-stc.h5')
